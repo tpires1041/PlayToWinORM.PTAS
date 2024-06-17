@@ -57,6 +57,35 @@ app.get("/usuarios/:id/update", async (req, res) => {
   // });
 });
 
+app.post("/usuarios/:id/update", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const dadosUsuario = {
+    nickname: req.body.nickname,
+    nome: req.body.nome,
+  };
+
+  const retorno = await Usuario.update(dadosUsuario, { where: { id: id } });
+
+  if (retorno > 0) {
+    res.redirect("/usuarios");
+  } else {
+    res.send("Erro ao atualizar usuário");
+  }
+});
+
+app.post("/usuarios/:id/delete", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const retorno = await Usuario.destroy({ where: { id: id } });
+
+  if (retorno > 0) {
+    res.redirect("/usuarios");
+  } else {
+    res.send("Erro ao excluir usuário");
+  }
+});
+
 app.listen(8000, () => {
   console.log("Server rodando!");
 });
