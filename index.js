@@ -4,9 +4,11 @@ const conn = require("./db/conn");
 const express = require("express");
 const exphbs = require("express-handlebars");
 
-const Usuario = require("./models/Usuario");
 const Cartao = require("./models/Cartao");
+const Conquista = require("./models/Conquista");
 const Jogo = require("./models/Jogo");
+const Usuario = require("./models/Usuario");
+
 
 Jogo.belongsToMany(Usuario, { through: "aquisicoes" });
 Usuario.belongsToMany(Jogo, { through: "aquisicoes" });
@@ -130,6 +132,109 @@ app.post("/usuarios/:id/novoCartao", async (req, res) => {
 
   res.redirect(`/usuarios/${id}/cartoes`);
 });
+
+
+app.get("/jogos", async (req, res) => {
+  const jogos = await Jogo.findAll({ raw: true });
+
+  res.render("jogos", { jogos });
+});
+
+app.get("/jogos/novo", (req, res) => {
+  res.render("formJogo");
+});
+
+app.post("/jogos/novo", async (req, res) => {
+  const dadosJogo = {
+    titulo: req.body.titulo,
+    descricao: req.body.descricao,
+    precoBase: req.body.precoBase,
+  };
+
+  const jogo = await Jogo.create(dadosJogo);
+  res.send("Jogo inserido sob o id " + jogo.id);
+});
+
+app.get("/jogos/:id/update", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const jogo = await Jogo.findByPk(id, { raw: true });
+
+  res.render("formJogo", { jogo });
+  // const usuario = Usuario.findOne({
+  //   where: { id: id },
+  //   raw: true,
+  // });
+});
+
+app.post("/jogos/:id/update", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const dadosJogo = {
+    titulo: req.body.titulo,
+    descricao: req.body.descricao,
+    precoBase: req.body.precoBase,
+  };
+
+  const retorno = await Jogo.update(dadosJogo, { where: { id: id } });
+
+  if (retorno > 0) {
+    res.redirect("jogos");
+  } else {
+    res.send("Erro ao atualizar usuário");
+  }
+});
+
+app.post("/jogos/:id/delete", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const retorno = await Jogo.destroy({ where: { id: id } });
+
+  if (retorno > 0) {
+    res.redirect("/jogo");
+  } else {
+    res.send("Erro ao excluir jogo");
+  }
+});
+
+// Rotas para conquistas
+
+//Ver conquistas do jogo
+app.get("/jogos/:id/conquistas", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const jogo = await Jogo.findByPk(id, { raw: true });
+
+  const jogos = await Jogo.findAll({
+    raw: true,
+    where: { JogoId: id },
+  });
+
+  res.render("jogos.handlebars", { jogo, conquistas });
+});
+
+//Formulário de cadastro de cartão
+app.get("/jogos/:id/novaConquista", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const jogo = await Jogo.findByPk(id, { raw: true });
+
+  res.render("formConquista", { jogo });
+});
+
+//Cadastro de cartão
+app.post("/jogos/:id/novaConquista", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const dadosConquista = {
+    titulo: req.body.titulo,
+    descricao: req.body.descricao,
+    JogoId: id,
+  };
+
+  await Conquista.create(dadosConquista);
+
+  res.redirect(`/jogos/${id}/conquistas`);
+});
+
+
 
 app.listen(8000, () => {
   console.log("Server rodando!");
