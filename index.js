@@ -1,4 +1,3 @@
-// Importações de módulos:
 require("dotenv").config();
 const conn = require("./db/conn");
 const express = require("express");
@@ -13,15 +12,12 @@ const Usuario = require("./models/Usuario");
 Jogo.belongsToMany(Usuario, { through: "aquisicoes" });
 Usuario.belongsToMany(Jogo, { through: "aquisicoes" });
 
-// Instanciação do servidor:
 const app = express();
 
-// Vinculação do Handlebars ao Express:
 app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
 
-// Configurações no express para facilitar a captura
-// de dados recebidos de formulários
+
 app.use(
   express.urlencoded({
     extended: true,
@@ -59,10 +55,7 @@ app.get("/usuarios/:id/update", async (req, res) => {
   const usuario = await Usuario.findByPk(id, { raw: true });
 
   res.render("formUsuario", { usuario });
-  // const usuario = Usuario.findOne({
-  //   where: { id: id },
-  //   raw: true,
-  // });
+
 });
 
 app.post("/usuarios/:id/update", async (req, res) => {
@@ -94,9 +87,9 @@ app.post("/usuarios/:id/delete", async (req, res) => {
   }
 });
 
-// Rotas para cartões
 
-//Ver cartões do usuário
+
+
 app.get("/usuarios/:id/cartoes", async (req, res) => {
   const id = parseInt(req.params.id);
   const usuario = await Usuario.findByPk(id, { raw: true });
@@ -109,7 +102,7 @@ app.get("/usuarios/:id/cartoes", async (req, res) => {
   res.render("cartoes.handlebars", { usuario, cartoes });
 });
 
-//Formulário de cadastro de cartão
+
 app.get("/usuarios/:id/novoCartao", async (req, res) => {
   const id = parseInt(req.params.id);
   const usuario = await Usuario.findByPk(id, { raw: true });
@@ -117,7 +110,7 @@ app.get("/usuarios/:id/novoCartao", async (req, res) => {
   res.render("formCartao", { usuario });
 });
 
-//Cadastro de cartão
+
 app.post("/usuarios/:id/novoCartao", async (req, res) => {
   const id = parseInt(req.params.id);
 
@@ -160,10 +153,7 @@ app.get("/jogos/:id/update", async (req, res) => {
   const jogo = await Jogo.findByPk(id, { raw: true });
 
   res.render("formJogo", { jogo });
-  // const usuario = Usuario.findOne({
-  //   where: { id: id },
-  //   raw: true,
-  // });
+
 });
 
 app.post("/jogos/:id/update", async (req, res) => {
@@ -196,22 +186,20 @@ app.post("/jogos/:id/delete", async (req, res) => {
   }
 });
 
-// Rotas para conquistas
 
-//Ver conquistas do jogo
 app.get("/jogos/:id/conquistas", async (req, res) => {
   const id = parseInt(req.params.id);
   const jogo = await Jogo.findByPk(id, { raw: true });
 
-  const jogos = await Jogo.findAll({
+  const conquistas = await Conquista.findAll({
     raw: true,
     where: { JogoId: id },
   });
 
-  res.render("jogos.handlebars", { jogo, conquistas });
+  res.render("conquistas.handlebars", { jogo, conquistas });
 });
 
-//Formulário de cadastro de cartão
+
 app.get("/jogos/:id/novaConquista", async (req, res) => {
   const id = parseInt(req.params.id);
   const jogo = await Jogo.findByPk(id, { raw: true });
@@ -219,7 +207,7 @@ app.get("/jogos/:id/novaConquista", async (req, res) => {
   res.render("formConquista", { jogo });
 });
 
-//Cadastro de cartão
+
 app.post("/jogos/:id/novaConquista", async (req, res) => {
   const id = parseInt(req.params.id);
 
@@ -235,7 +223,6 @@ app.post("/jogos/:id/novaConquista", async (req, res) => {
 });
 
 
-
 app.listen(8000, () => {
   console.log("Server rodando!");
 });
@@ -249,11 +236,3 @@ conn
     console.log("Ocorreu um erro: " + err);
   });
 
-// conn
-//   .authenticate()
-//   .then(() => {
-//     console.log("Conectado ao banco de dados com sucesso!");
-//   })
-//   .catch((err) => {
-//     console.log("Ocorreu um erro: " + err);
-//   });
